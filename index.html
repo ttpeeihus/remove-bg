@@ -1,0 +1,2106 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>CircleCut — Remove Background</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    :root {
+      --bg: #111214;
+      --bg-soft: #18191c;
+
+      --card: #f7f5f1;
+      --card-soft: #efede8;
+
+      --text: #17181a;
+      --muted: #85837e;
+
+      --line: rgba(23, 24, 26, .10);
+      --line-dark: rgba(255, 255, 255, .09);
+
+      --accent: #c9a66b;
+
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+
+      color: white;
+
+      font-family:
+        "DM Sans",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      background:
+        radial-gradient(
+          circle at 50% -15%,
+          #303137 0%,
+          #1b1c20 34%,
+          #111214 68%
+        );
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+
+    /* ============================================================
+       PAGE
+       ============================================================ */
+
+    .page {
+      width: min(1080px, calc(100% - 40px));
+      margin: 0 auto;
+
+      padding: 30px 0 48px;
+    }
+
+
+    /* ============================================================
+       HEADER
+       ============================================================ */
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      margin-bottom: 26px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+
+      display: grid;
+      place-items: center;
+
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 10px;
+
+      background: rgba(255,255,255,.06);
+
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
+    .brand-mark::before {
+      content: "";
+
+      width: 14px;
+      height: 14px;
+
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+    }
+
+    .brand-name {
+      font-family: "Space Grotesk", sans-serif;
+
+      font-size: 17px;
+      font-weight: 600;
+
+      letter-spacing: -.03em;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      color: rgba(255,255,255,.45);
+
+      font-size: 11px;
+    }
+
+    .local-dot {
+      width: 6px;
+      height: 6px;
+
+      border-radius: 50%;
+
+      background: #6bd48b;
+
+      box-shadow:
+        0 0 0 3px rgba(107,212,139,.10);
+    }
+
+
+    /* ============================================================
+       APP
+       ============================================================ */
+
+    .app {
+      overflow: hidden;
+
+      background: var(--card);
+
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+
+      color: var(--text);
+
+      box-shadow:
+        0 30px 80px rgba(0,0,0,.30),
+        0 5px 18px rgba(0,0,0,.14);
+    }
+
+
+    /* ============================================================
+       APP HEADER
+       ============================================================ */
+
+    .app-header {
+      height: 76px;
+
+      padding: 0 24px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      border-bottom: 1px solid var(--line);
+    }
+
+    .app-title {
+      font-family: "Space Grotesk", sans-serif;
+
+      font-size: 18px;
+      font-weight: 600;
+
+      letter-spacing: -.035em;
+    }
+
+    .app-description {
+      margin-top: 3px;
+
+      color: var(--muted);
+
+      font-size: 11px;
+    }
+
+    .reset-button {
+      border: 0;
+      background: transparent;
+
+      color: var(--muted);
+
+      font-size: 11px;
+      font-weight: 500;
+
+      padding: 7px 8px;
+
+      border-radius: 7px;
+    }
+
+    .reset-button:hover {
+      background: rgba(0,0,0,.045);
+      color: var(--text);
+    }
+
+
+    /* ============================================================
+       UPLOAD STATE
+       ============================================================ */
+
+    .upload-view {
+      padding: 22px;
+    }
+
+    .dropzone {
+      min-height: 330px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border: 1px dashed #d2d0ca;
+      border-radius: 17px;
+
+      background:
+        radial-gradient(
+          circle at center,
+          rgba(255,255,255,.9),
+          rgba(240,238,233,.72)
+        );
+
+      cursor: pointer;
+
+      transition:
+        border-color .2s ease,
+        background .2s ease,
+        transform .2s ease;
+    }
+
+    .dropzone:hover,
+    .dropzone.dragover {
+      border-color: #b9a27b;
+
+      background:
+        radial-gradient(
+          circle at center,
+          #fff,
+          #f0ece4
+        );
+    }
+
+    .dropzone.dragover {
+      transform: scale(.995);
+    }
+
+    .upload-inner {
+      text-align: center;
+    }
+
+    .upload-icon {
+      width: 48px;
+      height: 48px;
+
+      margin: 0 auto 18px;
+
+      display: grid;
+      place-items: center;
+
+      border: 1px solid #dedbd4;
+      border-radius: 14px;
+
+      background: white;
+
+      box-shadow:
+        0 8px 20px rgba(0,0,0,.06);
+    }
+
+    .upload-icon svg {
+      width: 20px;
+      height: 20px;
+
+      color: #6f6d68;
+    }
+
+    .upload-title {
+      font-family: "Space Grotesk", sans-serif;
+
+      font-size: 18px;
+      font-weight: 600;
+
+      letter-spacing: -.03em;
+    }
+
+    .upload-subtitle {
+      margin-top: 7px;
+
+      color: var(--muted);
+
+      font-size: 12px;
+    }
+
+    .upload-browse {
+      margin-top: 18px;
+
+      display: inline-flex;
+      align-items: center;
+
+      height: 35px;
+      padding: 0 14px;
+
+      border: 1px solid #d6d3cc;
+      border-radius: 8px;
+
+      background: white;
+
+      color: var(--text);
+
+      font-size: 11px;
+      font-weight: 600;
+
+      box-shadow:
+        0 2px 4px rgba(0,0,0,.03);
+    }
+
+    .upload-browse:hover {
+      background: #faf9f7;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+
+    /* ============================================================
+       EDITOR
+       ============================================================ */
+
+    .editor {
+      display: none;
+    }
+
+    .editor.active {
+      display: block;
+    }
+
+    .preview-grid {
+      padding: 18px;
+
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+
+      gap: 12px;
+
+      background: #e9e6e0;
+    }
+
+    .preview-card {
+      min-width: 0;
+
+      overflow: hidden;
+
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: 14px;
+
+      background: white;
+    }
+
+    .preview-head {
+      height: 40px;
+
+      padding: 0 13px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      border-bottom: 1px solid var(--line);
+    }
+
+    .preview-name {
+      color: #45443f;
+
+      font-size: 10px;
+      font-weight: 600;
+
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .preview-dimensions {
+      color: #a09d96;
+
+      font-size: 10px;
+    }
+
+    .preview-canvas {
+      height: 430px;
+
+      padding: 22px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      overflow: hidden;
+
+      background:
+        linear-gradient(
+          135deg,
+          #f1efeb,
+          #e8e5df
+        );
+    }
+
+    .preview-canvas.checkerboard {
+      background-color: #f4f4f3;
+
+      background-image:
+        linear-gradient(45deg, #e5e5e3 25%, transparent 25%),
+        linear-gradient(-45deg, #e5e5e3 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #e5e5e3 75%),
+        linear-gradient(-45deg, transparent 75%, #e5e5e3 75%);
+
+      background-size: 24px 24px;
+
+      background-position:
+        0 0,
+        0 12px,
+        12px -12px,
+        -12px 0;
+    }
+
+    /*
+     * IMPORTANT:
+     * The preview images are constrained here.
+     * They can NEVER become a full-page image.
+     */
+
+    .preview-image {
+      display: block;
+
+      width: auto;
+      height: auto;
+
+      max-width: 100%;
+      max-height: 100%;
+
+      object-fit: contain;
+
+      border-radius: 5px;
+
+      box-shadow:
+        0 12px 30px rgba(0,0,0,.12);
+    }
+
+    .result-placeholder {
+      color: #aaa7a0;
+
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .result-placeholder.hidden {
+      display: none;
+    }
+
+
+    /* ============================================================
+       TOOLBAR
+       ============================================================ */
+
+    .toolbar {
+      min-height: 74px;
+
+      padding: 12px 18px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 20px;
+
+      border-top: 1px solid var(--line);
+    }
+
+    .control {
+      display: flex;
+      align-items: center;
+
+      gap: 12px;
+    }
+
+    .control-label {
+      color: #74716b;
+
+      font-size: 10px;
+      font-weight: 600;
+
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .range {
+      width: 130px;
+
+      accent-color: #1b1c1e;
+
+      cursor: pointer;
+    }
+
+    .range-value {
+      min-width: 22px;
+
+      color: var(--text);
+
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .button {
+      height: 36px;
+
+      padding: 0 14px;
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+
+      border: 1px solid #d8d5cf;
+      border-radius: 9px;
+
+      background: white;
+
+      color: var(--text);
+
+      font-size: 11px;
+      font-weight: 600;
+
+      transition:
+        background .15s ease,
+        border-color .15s ease,
+        transform .15s ease;
+    }
+
+    .button:hover {
+      background: #faf9f7;
+      border-color: #c7c4bd;
+    }
+
+    .button:active {
+      transform: translateY(1px);
+    }
+
+    .button.primary {
+      border-color: #191a1c;
+
+      background: #191a1c;
+
+      color: white;
+    }
+
+    .button.primary:hover {
+      background: #303135;
+      border-color: #303135;
+    }
+
+    .button.download {
+      display: none;
+
+      background: #b18b51;
+      border-color: #b18b51;
+    }
+
+    .button.download.visible {
+      display: inline-flex;
+    }
+
+    .button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+
+    /* ============================================================
+       FOOTER INFO
+       ============================================================ */
+
+    .info {
+      min-height: 38px;
+
+      padding: 0 18px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      border-top: 1px solid var(--line);
+
+      color: #96938d;
+
+      font-size: 10px;
+    }
+
+    .info.success {
+      color: #4c805d;
+    }
+
+
+    /* ============================================================
+       SPINNER
+       ============================================================ */
+
+    .spinner {
+      width: 12px;
+      height: 12px;
+
+      display: none;
+
+      border: 1.5px solid rgba(255,255,255,.3);
+      border-top-color: white;
+
+      border-radius: 50%;
+
+      animation: spin .65s linear infinite;
+    }
+
+    .processing .spinner {
+      display: block;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+
+    /* ============================================================
+       MOBILE
+       ============================================================ */
+
+    @media (max-width: 720px) {
+
+      .page {
+        width: min(100% - 20px, 1080px);
+
+        padding-top: 18px;
+      }
+
+      .header {
+        margin-bottom: 18px;
+      }
+
+      .header-right {
+        display: none;
+      }
+
+      .app-header {
+        height: 68px;
+
+        padding: 0 17px;
+      }
+
+      .app-title {
+        font-size: 16px;
+      }
+
+      .upload-view {
+        padding: 12px;
+      }
+
+      .dropzone {
+        min-height: 260px;
+      }
+
+      .preview-grid {
+        grid-template-columns: 1fr;
+
+        padding: 12px;
+      }
+
+      .preview-canvas {
+        height: 330px;
+      }
+
+      .toolbar {
+        align-items: stretch;
+
+        flex-direction: column;
+
+        padding: 13px;
+      }
+
+      .control {
+        justify-content: space-between;
+      }
+
+      .range {
+        flex: 1;
+      }
+
+      .actions {
+        width: 100%;
+      }
+
+      .actions .button {
+        flex: 1;
+      }
+
+      .info {
+        justify-content: center;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+<div class="page">
+
+  <!-- ==========================================================
+       HEADER
+       =========================================================== -->
+
+  <header class="header">
+
+```
+<div class="brand">
+
+  <div class="brand-mark"></div>
+
+  <div class="brand-name">
+    CircleCut
+  </div>
+
+</div>
+
+
+<div class="header-right">
+
+  <span class="local-dot"></span>
+
+  Runs locally in your browser
+
+</div>
+```
+
+  </header>
+
+  <!-- ==========================================================
+       APP
+       =========================================================== -->
+
+  <main class="app">
+
+```
+<!-- APP HEADER -->
+
+<div class="app-header">
+
+  <div>
+
+    <div class="app-title">
+      Remove background
+    </div>
+
+    <div class="app-description">
+      Clean up images inside circular frames
+    </div>
+
+  </div>
+
+
+  <button
+    id="resetButton"
+    class="reset-button"
+    type="button"
+  >
+    Reset
+  </button>
+
+</div>
+
+
+<!-- ========================================================
+     UPLOAD VIEW
+     ========================================================= -->
+
+<section
+  id="uploadView"
+  class="upload-view"
+>
+
+  <label
+    id="dropzone"
+    class="dropzone"
+    tabindex="0"
+  >
+
+    <input
+      id="fileInput"
+      type="file"
+      accept="image/png,image/jpeg,image/webp"
+    />
+
+
+    <div class="upload-inner">
+
+      <div class="upload-icon">
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 16V4"/>
+          <path d="M7 9l5-5 5 5"/>
+          <path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>
+        </svg>
+
+      </div>
+
+
+      <div class="upload-title">
+        Drop your image here
+      </div>
+
+
+      <div class="upload-subtitle">
+        PNG, JPG or WebP
+      </div>
+
+
+      <span class="upload-browse">
+        Choose image
+      </span>
+
+    </div>
+
+  </label>
+
+</section>
+
+
+<!-- ========================================================
+     EDITOR VIEW
+     ========================================================= -->
+
+<section
+  id="editor"
+  class="editor"
+>
+
+
+  <!-- PREVIEWS -->
+
+  <div class="preview-grid">
+
+
+    <!-- ORIGINAL -->
+
+    <div class="preview-card">
+
+      <div class="preview-head">
+
+        <span class="preview-name">
+          Original
+        </span>
+
+        <span
+          id="originalDimensions"
+          class="preview-dimensions"
+        >
+          —
+        </span>
+
+      </div>
+
+
+      <div class="preview-canvas">
+
+        <img
+          id="originalPreview"
+          class="preview-image"
+          alt="Original image"
+        />
+
+      </div>
+
+    </div>
+
+
+    <!-- RESULT -->
+
+    <div class="preview-card">
+
+      <div class="preview-head">
+
+        <span class="preview-name">
+          Result
+        </span>
+
+        <span
+          id="resultDimensions"
+          class="preview-dimensions"
+        >
+          —
+        </span>
+
+      </div>
+
+
+      <div
+        id="resultCanvas"
+        class="preview-canvas checkerboard"
+      >
+
+        <span
+          id="resultPlaceholder"
+          class="result-placeholder"
+        >
+          Processed image will appear here
+        </span>
+
+
+        <img
+          id="resultPreview"
+          class="preview-image"
+          alt="Processed image"
+          hidden
+        />
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- TOOLBAR -->
+
+  <div class="toolbar">
+
+
+    <div class="control">
+
+      <span class="control-label">
+        Threshold
+      </span>
+
+
+      <input
+        id="threshold"
+        class="range"
+        type="range"
+        min="0"
+        max="150"
+        value="60"
+      />
+
+
+      <span
+        id="thresholdValue"
+        class="range-value"
+      >
+        60
+      </span>
+
+    </div>
+
+
+    <div class="actions">
+
+      <button
+        id="processButton"
+        class="button primary"
+        type="button"
+      >
+
+        <span class="spinner"></span>
+
+        <span class="process-text">
+          Process
+        </span>
+
+      </button>
+
+
+      <button
+        id="downloadButton"
+        class="button primary download"
+        type="button"
+      >
+        Download PNG
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- INFO -->
+
+  <div
+    id="info"
+    class="info"
+  >
+
+    <span id="status">
+      Ready
+    </span>
+
+    <span>
+      Transparent PNG
+    </span>
+
+  </div>
+
+</section>
+```
+
+  </main>
+
+</div>
+
+<script>
+
+  /* ==============================================================
+     ELEMENTS
+     ============================================================== */
+
+  const fileInput =
+    document.getElementById("fileInput");
+
+  const dropzone =
+    document.getElementById("dropzone");
+
+  const uploadView =
+    document.getElementById("uploadView");
+
+  const editor =
+    document.getElementById("editor");
+
+  const originalPreview =
+    document.getElementById("originalPreview");
+
+  const resultPreview =
+    document.getElementById("resultPreview");
+
+  const originalDimensions =
+    document.getElementById("originalDimensions");
+
+  const resultDimensions =
+    document.getElementById("resultDimensions");
+
+  const resultPlaceholder =
+    document.getElementById("resultPlaceholder");
+
+  const threshold =
+    document.getElementById("threshold");
+
+  const thresholdValue =
+    document.getElementById("thresholdValue");
+
+  const processButton =
+    document.getElementById("processButton");
+
+  const downloadButton =
+    document.getElementById("downloadButton");
+
+  const resetButton =
+    document.getElementById("resetButton");
+
+  const info =
+    document.getElementById("info");
+
+  const status =
+    document.getElementById("status");
+
+
+  /* ==============================================================
+     STATE
+     ============================================================== */
+
+  let selectedFile = null;
+  let resultBlob = null;
+
+  let originalObjectUrl = null;
+  let resultObjectUrl = null;
+
+
+  /* ==============================================================
+     THRESHOLD
+     ============================================================== */
+
+  threshold.addEventListener(
+    "input",
+    () => {
+
+      thresholdValue.textContent =
+        threshold.value;
+
+    }
+  );
+
+
+  /* ==============================================================
+     FILE PICKER
+     ============================================================== */
+
+  fileInput.addEventListener(
+    "change",
+    event => {
+
+      const file =
+        event.target.files?.[0];
+
+      if (file) {
+        loadFile(file);
+      }
+
+    }
+  );
+
+
+  /* ==============================================================
+     LOAD FILE
+     ============================================================== */
+
+  async function loadFile(file) {
+
+    if (!file.type.startsWith("image/")) {
+
+      setStatus(
+        "Please select an image.",
+        false
+      );
+
+      return;
+
+    }
+
+
+    selectedFile =
+      file;
+
+    resultBlob =
+      null;
+
+
+    /*
+     * Revoke previous URLs.
+     */
+
+    revokeUrls();
+
+
+    /*
+     * Original image.
+     */
+
+    originalObjectUrl =
+      URL.createObjectURL(file);
+
+
+    originalPreview.src =
+      originalObjectUrl;
+
+    originalPreview.hidden =
+      false;
+
+
+    /*
+     * Read dimensions.
+     */
+
+    const image =
+      await loadImage(file);
+
+
+    originalDimensions.textContent =
+      `${image.naturalWidth} × ${image.naturalHeight}`;
+
+
+    /*
+     * Reset result.
+     */
+
+    resultPreview.hidden =
+      true;
+
+    resultPreview.removeAttribute(
+      "src"
+    );
+
+    resultPlaceholder.classList.remove(
+      "hidden"
+    );
+
+    resultDimensions.textContent =
+      "—";
+
+    downloadButton.classList.remove(
+      "visible"
+    );
+
+
+    /*
+     * Switch view.
+     */
+
+    uploadView.style.display =
+      "none";
+
+    editor.classList.add(
+      "active"
+    );
+
+
+    processButton.disabled =
+      false;
+
+
+    setStatus(
+      "Ready to process",
+      false
+    );
+
+  }
+
+
+  /* ==============================================================
+     IMAGE LOADER
+     ============================================================== */
+
+  function loadImage(file) {
+
+    return new Promise(
+      (resolve, reject) => {
+
+        const url =
+          URL.createObjectURL(file);
+
+        const image =
+          new Image();
+
+
+        image.onload = () => {
+
+          URL.revokeObjectURL(url);
+
+          resolve(image);
+
+        };
+
+
+        image.onerror = () => {
+
+          URL.revokeObjectURL(url);
+
+          reject(
+            new Error(
+              "Could not load image."
+            )
+          );
+
+        };
+
+
+        image.src =
+          url;
+
+      }
+    );
+
+  }
+
+
+  /* ==============================================================
+     DRAG & DROP
+     ============================================================== */
+
+  [
+    "dragenter",
+    "dragover"
+  ].forEach(
+    eventName => {
+
+      dropzone.addEventListener(
+        eventName,
+        event => {
+
+          event.preventDefault();
+
+          dropzone.classList.add(
+            "dragover"
+          );
+
+        }
+      );
+
+    }
+  );
+
+
+  [
+    "dragleave",
+    "drop"
+  ].forEach(
+    eventName => {
+
+      dropzone.addEventListener(
+        eventName,
+        event => {
+
+          event.preventDefault();
+
+          dropzone.classList.remove(
+            "dragover"
+          );
+
+        }
+      );
+
+    }
+  );
+
+
+  dropzone.addEventListener(
+    "drop",
+    event => {
+
+      const file =
+        event.dataTransfer.files?.[0];
+
+      if (file) {
+        loadFile(file);
+      }
+
+    }
+  );
+
+
+  dropzone.addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        event.key === "Enter" ||
+        event.key === " "
+      ) {
+
+        event.preventDefault();
+
+        fileInput.click();
+
+      }
+
+    }
+  );
+
+
+  /* ==============================================================
+     PROCESS
+     ============================================================== */
+
+  processButton.addEventListener(
+    "click",
+    processImage
+  );
+
+
+  async function processImage() {
+
+    if (!selectedFile) {
+      return;
+    }
+
+
+    processButton.disabled =
+      true;
+
+    processButton.classList.add(
+      "processing"
+    );
+
+
+    setStatus(
+      "Processing…",
+      false
+    );
+
+
+    try {
+
+      /*
+       * Load image.
+       */
+
+      const image =
+        await loadImage(
+          selectedFile
+        );
+
+
+      const width =
+        image.naturalWidth;
+
+      const height =
+        image.naturalHeight;
+
+
+      /*
+       * Canvas.
+       */
+
+      const canvas =
+        document.createElement(
+          "canvas"
+        );
+
+
+      canvas.width =
+        width;
+
+      canvas.height =
+        height;
+
+
+      const ctx =
+        canvas.getContext(
+          "2d",
+          {
+            willReadFrequently: true
+          }
+        );
+
+
+      ctx.drawImage(
+        image,
+        0,
+        0
+      );
+
+
+      const imageData =
+        ctx.getImageData(
+          0,
+          0,
+          width,
+          height
+        );
+
+
+      const data =
+        imageData.data;
+
+
+      const limit =
+        Number(
+          threshold.value
+        );
+
+
+      /*
+       * 0 = not visited
+       * 1 = connected black background
+       */
+
+      const visited =
+        new Uint8Array(
+          width * height
+        );
+
+
+      function isDark(
+        x,
+        y
+      ) {
+
+        const index =
+          (
+            y * width +
+            x
+          ) * 4;
+
+
+        return (
+          data[index] < limit &&
+          data[index + 1] < limit &&
+          data[index + 2] < limit
+        );
+
+      }
+
+
+      /*
+       * Flood fill connected
+       * black areas.
+       */
+
+      function floodFill(
+        startX,
+        startY
+      ) {
+
+        const startIndex =
+          startY * width +
+          startX;
+
+
+        if (
+          visited[startIndex] ||
+          !isDark(startX, startY)
+        ) {
+          return;
+        }
+
+
+        const queue = [
+          startX,
+          startY
+        ];
+
+
+        let head =
+          0;
+
+
+        while (
+          head < queue.length
+        ) {
+
+          const x =
+            queue[head++];
+
+          const y =
+            queue[head++];
+
+
+          const index =
+            y * width +
+            x;
+
+
+          if (visited[index]) {
+            continue;
+          }
+
+
+          if (!isDark(x, y)) {
+            continue;
+          }
+
+
+          visited[index] =
+            1;
+
+
+          if (x > 0) {
+
+            queue.push(
+              x - 1,
+              y
+            );
+
+          }
+
+
+          if (x < width - 1) {
+
+            queue.push(
+              x + 1,
+              y
+            );
+
+          }
+
+
+          if (y > 0) {
+
+            queue.push(
+              x,
+              y - 1
+            );
+
+          }
+
+
+          if (y < height - 1) {
+
+            queue.push(
+              x,
+              y + 1
+            );
+
+          }
+
+        }
+
+      }
+
+
+      /*
+       * Start from all four corners.
+       */
+
+      floodFill(
+        0,
+        0
+      );
+
+      floodFill(
+        width - 1,
+        0
+      );
+
+      floodFill(
+        0,
+        height - 1
+      );
+
+      floodFill(
+        width - 1,
+        height - 1
+      );
+
+
+      /*
+       * Remove background
+       * and calculate visible bounds.
+       */
+
+      let minX =
+        width;
+
+      let minY =
+        height;
+
+      let maxX =
+        -1;
+
+      let maxY =
+        -1;
+
+      let removed =
+        0;
+
+
+      for (
+        let y = 0;
+        y < height;
+        y++
+      ) {
+
+        for (
+          let x = 0;
+          x < width;
+          x++
+        ) {
+
+          const pixel =
+            y * width +
+            x;
+
+          const dataIndex =
+            pixel * 4;
+
+
+          if (
+            visited[pixel]
+          ) {
+
+            data[
+              dataIndex + 3
+            ] = 0;
+
+            removed++;
+
+            continue;
+
+          }
+
+
+          /*
+           * Visible pixel.
+           */
+
+          if (x < minX) {
+            minX = x;
+          }
+
+          if (y < minY) {
+            minY = y;
+          }
+
+          if (x > maxX) {
+            maxX = x;
+          }
+
+          if (y > maxY) {
+            maxY = y;
+          }
+
+        }
+
+      }
+
+
+      if (
+        maxX < minX ||
+        maxY < minY
+      ) {
+
+        throw new Error(
+          "No visible area found."
+        );
+
+      }
+
+
+      /*
+       * Put modified image back.
+       */
+
+      ctx.putImageData(
+        imageData,
+        0,
+        0
+      );
+
+
+      /*
+       * Crop to visible area.
+       */
+
+      const cropWidth =
+        maxX - minX + 1;
+
+      const cropHeight =
+        maxY - minY + 1;
+
+
+      const cropCanvas =
+        document.createElement(
+          "canvas"
+        );
+
+
+      cropCanvas.width =
+        cropWidth;
+
+      cropCanvas.height =
+        cropHeight;
+
+
+      const cropCtx =
+        cropCanvas.getContext(
+          "2d"
+        );
+
+
+      cropCtx.drawImage(
+        canvas,
+
+        minX,
+        minY,
+        cropWidth,
+        cropHeight,
+
+        0,
+        0,
+        cropWidth,
+        cropHeight
+      );
+
+
+      /*
+       * Convert to PNG.
+       */
+
+      resultBlob =
+        await new Promise(
+          resolve => {
+
+            cropCanvas.toBlob(
+              resolve,
+              "image/png"
+            );
+
+          }
+        );
+
+
+      if (!resultBlob) {
+
+        throw new Error(
+          "Could not create PNG."
+        );
+
+      }
+
+
+      /*
+       * IMPORTANT:
+       * Only update the existing result
+       * <img>. Never append another image.
+       */
+
+      if (resultObjectUrl) {
+
+        URL.revokeObjectURL(
+          resultObjectUrl
+        );
+
+      }
+
+
+      resultObjectUrl =
+        URL.createObjectURL(
+          resultBlob
+        );
+
+
+      resultPreview.src =
+        resultObjectUrl;
+
+      resultPreview.hidden =
+        false;
+
+
+      resultPlaceholder.classList.add(
+        "hidden"
+      );
+
+
+      resultDimensions.textContent =
+        `${cropWidth} × ${cropHeight}`;
+
+
+      downloadButton.classList.add(
+        "visible"
+      );
+
+
+      setStatus(
+        `${cropWidth} × ${cropHeight}px · ${removed.toLocaleString()} pixels removed`,
+        true
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      setStatus(
+        error.message ||
+        "Processing failed.",
+        false
+      );
+
+    }
+
+
+    processButton.disabled =
+      false;
+
+    processButton.classList.remove(
+      "processing"
+    );
+
+  }
+
+
+  /* ==============================================================
+     DOWNLOAD
+     ============================================================== */
+
+  downloadButton.addEventListener(
+    "click",
+    () => {
+
+      if (!resultBlob) {
+        return;
+      }
+
+
+      const baseName =
+        selectedFile.name
+          .replace(
+            /\.[^/.]+$/,
+            ""
+          );
+
+
+      const url =
+        URL.createObjectURL(
+          resultBlob
+        );
+
+
+      const link =
+        document.createElement(
+          "a"
+        );
+
+
+      link.href =
+        url;
+
+      link.download =
+        `${baseName}_nobg.png`;
+
+
+      document.body.appendChild(
+        link
+      );
+
+
+      link.click();
+
+
+      link.remove();
+
+
+      URL.revokeObjectURL(
+        url
+      );
+
+    }
+  );
+
+
+  /* ==============================================================
+     RESET
+     ============================================================== */
+
+  resetButton.addEventListener(
+    "click",
+    reset
+  );
+
+
+  function reset() {
+
+    selectedFile =
+      null;
+
+    resultBlob =
+      null;
+
+
+    revokeUrls();
+
+
+    fileInput.value =
+      "";
+
+
+    originalPreview.removeAttribute(
+      "src"
+    );
+
+    resultPreview.removeAttribute(
+      "src"
+    );
+
+
+    resultPreview.hidden =
+      true;
+
+
+    resultPlaceholder.classList.remove(
+      "hidden"
+    );
+
+
+    originalDimensions.textContent =
+      "—";
+
+    resultDimensions.textContent =
+      "—";
+
+
+    downloadButton.classList.remove(
+      "visible"
+    );
+
+
+    processButton.disabled =
+      true;
+
+
+    editor.classList.remove(
+      "active"
+    );
+
+    uploadView.style.display =
+      "";
+
+
+    setStatus(
+      "Ready",
+      false
+    );
+
+  }
+
+
+  /* ==============================================================
+     URL CLEANUP
+     ============================================================== */
+
+  function revokeUrls() {
+
+    if (originalObjectUrl) {
+
+      URL.revokeObjectURL(
+        originalObjectUrl
+      );
+
+      originalObjectUrl =
+        null;
+
+    }
+
+
+    if (resultObjectUrl) {
+
+      URL.revokeObjectURL(
+        resultObjectUrl
+      );
+
+      resultObjectUrl =
+        null;
+
+    }
+
+  }
+
+
+  /* ==============================================================
+     STATUS
+     ============================================================== */
+
+  function setStatus(
+    message,
+    success
+  ) {
+
+    status.textContent =
+      message;
+
+    info.classList.toggle(
+      "success",
+      success
+    );
+
+  }
+
+</script>
+
+</body>
+</html>
